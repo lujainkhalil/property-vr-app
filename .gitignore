@@ -4,3 +4,9 @@ dist
 .next
 .DS_Store
 
+node_modules
+.env
+dist
+.next
+.DS_Store
+
