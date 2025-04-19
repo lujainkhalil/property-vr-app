@@ -5,6 +5,10 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const Listing = require('./models/listing');  // Import the Listing model
+const OpenAI = require('openai');
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 // Initialize express app
 const app = express();
@@ -182,6 +186,28 @@ app.delete('/api/listings/:id', async (req, res) => {
   } catch (error) {
     console.error('❌ Error deleting listing:', error);
     res.status(500).json({ error: 'An error occurred while deleting the listing.' });
+  }
+});
+
+//ai assiatmt
+app.post('/api/chat', async (req, res) => {
+  const { message } = req.body;
+
+  if (!message) {
+    return res.status(400).json({ error: 'Message is required.' });
+  }
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: message }],
+    });
+
+    const reply = completion.choices[0].message.content;
+    res.status(200).json({ reply });
+  } catch (error) {
+    console.error('❌ Error with OpenAI chat:', error.message);
+    res.status(500).json({ error: 'AI assistant failed to respond.' });
   }
 });
 
